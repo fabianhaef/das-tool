@@ -108,7 +108,7 @@ helloWorld();`)
             <div className="space-y-4">
               <div>
                 <label className="text-sm text-blue-300 mb-1 block">
-                  Type &quot;I want to code&quot; to continue:
+                  Type: I want to code to continue:
                 </label>
                 <Input
                   value={inputValues.firstInput}
