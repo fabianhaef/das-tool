@@ -120,7 +120,7 @@ helloWorld();`)
               
               <div>
                 <label className="text-sm text-blue-300 mb-1 block">
-                  Type &quot;I want to code&quot; to continue:
+                  Type &quot;I can code&quot; to continue:
                 </label>
                 <Input
                   value={inputValues.secondInput}
