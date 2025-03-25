@@ -94,12 +94,12 @@ helloWorld();`)
             
             <div className="text-muted-foreground mb-2">
               <p className="mb-4">
-                Editing code directly can affect the applicationapplication's functionality. Please confirm you understand the risks.
+                Editing code directly can affect the application&apos;s functionality. Please confirm you understand the risks.
               </p>
               <div className="p-3 bg-amber-950/40 border border-amber-800/50 rounded-md text-amber-200 flex items-start gap-2 mb-4">
                 <AlertTriangle className="h-5 w-5 mt-0.5 flex-shrink-0" />
                 <p className="text-sm">
-                  You are about to edit the applications source code. This requires careful attention as 
+                  You are about to edit the application&apos;s source code. This requires careful attention as 
                   incorrect changes can cause errors or unexpected behavior.
                 </p>
               </div>
@@ -120,7 +120,7 @@ helloWorld();`)
               
               <div>
                 <label className="text-sm text-blue-300 mb-1 block">
-                  Type &quot;I can code&quot; to continue:
+                  Type &quot;I want to code&quot; to continue:
                 </label>
                 <Input
                   value={inputValues.secondInput}
