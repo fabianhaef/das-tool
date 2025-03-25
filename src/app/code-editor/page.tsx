@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Input } from "@/components/ui/input"
 import {
   Code,
   AlertTriangle,
@@ -15,7 +16,8 @@ import {
   Layers,
   Eye,
   EyeOff,
-  RefreshCw
+  RefreshCw,
+  ShieldAlert
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
@@ -32,14 +34,40 @@ helloWorld();`)
   const [theme, setTheme] = useState('dark')
   const [output, setOutput] = useState('')
   const [isRunning, setIsRunning] = useState(false)
+  const [inputValues, setInputValues] = useState({
+    firstInput: '',
+    secondInput: ''
+  })
+  const [error, setError] = useState('')
 
   // Confirm dialog
   const handleConfirm = () => {
+    if (inputValues.firstInput.trim().toLowerCase() !== 'i want to code') {
+      setError('Please type the exact verification phrases')
+      return
+    }
+    
+    if (inputValues.secondInput.trim().toLowerCase() !== 'i can code') {
+      setError('Please type the exact verification phrases')
+      return
+    }
+    
+    setError('')
     setShowConfirmation(false)
   }
 
   const handleCancel = () => {
     router.back()
+  }
+
+  const handleInputChange = (field: 'firstInput' | 'secondInput', value: string) => {
+    setInputValues({
+      ...inputValues,
+      [field]: value
+    })
+    
+    // Clear error when user starts typing
+    if (error) setError('')
   }
 
   // Mock function to run code
@@ -59,14 +87,55 @@ helloWorld();`)
     <div className="flex flex-col h-[calc(100vh-4rem)] p-4 bg-black/90">
       {showConfirmation ? (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-          <Card className="hologram w-[400px] p-6 flex flex-col gap-4">
+          <Card className="hologram w-[500px] p-6 flex flex-col gap-4">
             <div className="flex items-center gap-2 text-amber-400">
-              <AlertTriangle className="h-5 w-5" />
-              <h2 className="text-lg font-semibold">Confirm Code Editing</h2>
+              <ShieldAlert className="h-6 w-6" />
+              <h2 className="text-lg font-semibold">Code Editing Confirmation</h2>
             </div>
-            <p className="text-muted-foreground">
-              Are you sure you want to edit code directly? This could affect the application's functionality.
-            </p>
+            
+            <div className="text-muted-foreground mb-2">
+              <p className="mb-4">
+                Editing code directly can affect the application's functionality. Please confirm you understand the risks.
+              </p>
+              <div className="p-3 bg-amber-950/40 border border-amber-800/50 rounded-md text-amber-200 flex items-start gap-2 mb-4">
+                <AlertTriangle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                <p className="text-sm">
+                  You are about to edit the application's source code. This requires careful attention as 
+                  incorrect changes can cause errors or unexpected behavior.
+                </p>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm text-blue-300 mb-1 block">
+                  Type "I want to code" to continue:
+                </label>
+                <Input
+                  value={inputValues.firstInput}
+                  onChange={(e) => handleInputChange('firstInput', e.target.value)}
+                  className="bg-black/50 border-primary/30 text-foreground"
+                  placeholder="Type the exact phrase"
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm text-blue-300 mb-1 block">
+                  Type "I can code" to continue:
+                </label>
+                <Input
+                  value={inputValues.secondInput}
+                  onChange={(e) => handleInputChange('secondInput', e.target.value)}
+                  className="bg-black/50 border-primary/30 text-foreground"
+                  placeholder="Type the exact phrase"
+                />
+              </div>
+              
+              {error && (
+                <div className="text-red-400 text-sm">{error}</div>
+              )}
+            </div>
+            
             <div className="flex justify-end gap-2 mt-2">
               <Button
                 variant="outline"

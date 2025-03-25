@@ -9,7 +9,6 @@ import {
   ZoomOut,
   Play,
   Pause,
-  AreaChart,
   Activity,
   PanelRight,
   Layers,

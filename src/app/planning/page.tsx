@@ -130,6 +130,7 @@ export default function PlanningPage() {
     priority: 'medium' as const,
     type: 'feature' as const,
   })
+  const [todoProgress, setTodoProgress] = useState(0)
 
   // Function to handle drag and drop
   const onDragEnd = (result: any) => {
@@ -263,7 +264,10 @@ export default function PlanningPage() {
   useEffect(() => {
     let todoTimeout: NodeJS.Timeout
     let inProgressTimeout: NodeJS.Timeout
+    let todoAllTimeout: NodeJS.Timeout
+    let progressInterval: NodeJS.Timeout
 
+    // Move single task from todo to in-progress
     const moveFromTodoToInProgress = () => {
       setColumns(prevColumns => {
         const todoColumn = prevColumns.find(col => col.id === 'todo')
@@ -288,6 +292,7 @@ export default function PlanningPage() {
       })
     }
 
+    // Move single task from in-progress to verify
     const moveFromInProgressToVerify = () => {
       setColumns(prevColumns => {
         const inProgressColumn = prevColumns.find(col => col.id === 'in-progress')
@@ -312,6 +317,31 @@ export default function PlanningPage() {
       })
     }
 
+    // Move all todo tasks to in-progress
+    const moveAllTodoToInProgress = () => {
+      setColumns(prevColumns => {
+        const todoColumn = prevColumns.find(col => col.id === 'todo')
+        if (!todoColumn?.tasks.length) return prevColumns
+        
+        const tasksToMove = [...todoColumn.tasks]
+        return prevColumns.map(col => {
+          if (col.id === 'todo') {
+            return {
+              ...col,
+              tasks: []
+            }
+          }
+          if (col.id === 'in-progress') {
+            return {
+              ...col,
+              tasks: [...col.tasks, ...tasksToMove]
+            }
+          }
+          return col
+        })
+      })
+    }
+
     const startMovementCycle = () => {
       // Move from TODO to IN PROGRESS after 5 seconds
       todoTimeout = setTimeout(() => {
@@ -324,18 +354,85 @@ export default function PlanningPage() {
       }, 5000)
     }
 
-    startMovementCycle()
+    // Start the countdown progress for todo tasks
+    const totalTime = 10000; // 10 seconds
+    const updateInterval = 100; // Update every 100ms
+    let elapsed = 0;
+
+    progressInterval = setInterval(() => {
+      elapsed += updateInterval;
+      const progress = Math.min(100, (elapsed / totalTime) * 100);
+      setTodoProgress(progress);
+      
+      if (elapsed >= totalTime) {
+        clearInterval(progressInterval);
+      }
+    }, updateInterval);
+
+    // Move all todo tasks after 10 seconds
+    todoAllTimeout = setTimeout(() => {
+      moveAllTodoToInProgress()
+    }, totalTime)
 
     return () => {
       clearTimeout(todoTimeout)
       clearTimeout(inProgressTimeout)
+      clearTimeout(todoAllTimeout)
+      clearInterval(progressInterval)
     }
   }, []) // Empty dependency array since we want this to run once on mount
+
+  // Function to manually move all todo tasks
+  const handleMoveAllTodo = () => {
+    setColumns(prevColumns => {
+      const todoColumn = prevColumns.find(col => col.id === 'todo')
+      if (!todoColumn?.tasks.length) return prevColumns
+      
+      const tasksToMove = [...todoColumn.tasks]
+      return prevColumns.map(col => {
+        if (col.id === 'todo') {
+          return {
+            ...col,
+            tasks: []
+          }
+        }
+        if (col.id === 'in-progress') {
+          return {
+            ...col,
+            tasks: [...col.tasks, ...tasksToMove]
+          }
+        }
+        return col
+      })
+    })
+  }
 
   return (
     <div className="h-[calc(100vh-4rem)] p-4 bg-black/90 flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-bold text-primary glow-text">Project Planning</h1>
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col w-48">
+            <div className="flex justify-between text-xs mb-1">
+              <span className="text-primary">Auto-move in {Math.max(0, 10 - (todoProgress / 10)).toFixed(1)}s</span>
+              <span className="text-primary">{todoProgress.toFixed(0)}%</span>
+            </div>
+            <div className="h-1 bg-primary/20 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-primary rounded-full transition-all"
+                style={{ width: `${todoProgress}%` }}
+              ></div>
+            </div>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="text-foreground border-primary/30 hover:text-primary"
+            onClick={handleMoveAllTodo}
+          >
+            Move All To-Do Tasks
+          </Button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-hidden">
@@ -354,14 +451,14 @@ export default function PlanningPage() {
                     <span className="text-xs text-muted-foreground">{column.tasks.length}</span>
                   </div>
                   
-                  <Droppable droppableId={column.id}>
-                    {(provided) => (
-                      <div
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                        className="flex-1 overflow-y-auto"
-                      >
-                        <div className="space-y-2">
+                  <div className="flex-1 overflow-y-auto">
+                    <Droppable droppableId={column.id}>
+                      {(provided) => (
+                        <div
+                          {...provided.droppableProps}
+                          ref={provided.innerRef}
+                          className="space-y-2 min-h-[50px]"
+                        >
                           {column.tasks.map((task, index) => (
                             <Draggable key={task.id} draggableId={task.id} index={index}>
                               {(provided) => (
@@ -442,9 +539,9 @@ export default function PlanningPage() {
                             </div>
                           )}
                         </div>
-                      </div>
-                    )}
-                  </Droppable>
+                      )}
+                    </Droppable>
+                  </div>
                 </Card>
               </div>
             ))}
