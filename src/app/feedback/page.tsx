@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
@@ -97,7 +97,7 @@ const performanceData: PerformanceMetrics[] = [
   }
 ]
 
-export default function FeedbackLoop() {
+function FeedbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
@@ -476,47 +476,18 @@ export default function FeedbackLoop() {
                   </div>
                 </div>
               </TabsContent>
-              
-              {/* Details Tab */}
-              <TabsContent value="details" className="flex-1 mt-4">
-                {selectedTask && (
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <div className="space-y-1">
-                        <div className="text-xs text-blue-400">Type</div>
-                        <div className="text-sm text-blue-300 bg-blue-950/50 rounded px-2 py-1 inline-flex items-center">
-                          {getTaskTypeBadge(selectedTask.type)}
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-1">
-                        <div className="text-xs text-blue-400">Priority</div>
-                        <div className="text-sm">
-                          {getPriorityBadge(selectedTask.priority)}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-1">
-                      <div className="text-xs text-blue-400">Description</div>
-                      <div className="text-sm text-blue-100 bg-blue-950/30 p-3 rounded">
-                        {selectedTask.description}
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-1">
-                      <div className="text-xs text-blue-400">Created At</div>
-                      <div className="text-sm text-blue-100 bg-blue-950/30 p-3 rounded">
-                        {selectedTask ? formatDateSafely(selectedTask.createdAt) : "No date available"}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </TabsContent>
             </Tabs>
           </Card>
         </div>
       </div>
     </div>
+  )
+}
+
+export default function FeedbackLoop() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center h-screen">Loading...</div>}>
+      <FeedbackContent />
+    </Suspense>
   )
 } 

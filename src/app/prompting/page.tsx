@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
@@ -58,7 +58,7 @@ interface TaskData {
   priority: 'low' | 'medium' | 'high';
 }
 
-export default function PromptEditor() {
+function PromptEditorContent() {
   const searchParams = useSearchParams()
   const [activePersona, setActivePersona] = useState('default')
   const [isRecording, setIsRecording] = useState(false)
@@ -309,5 +309,13 @@ export default function PromptEditor() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function PromptEditor() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center h-screen">Loading...</div>}>
+      <PromptEditorContent />
+    </Suspense>
   )
 } 
