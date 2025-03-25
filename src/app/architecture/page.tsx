@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { Card } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import {
@@ -110,14 +109,6 @@ export default function ArchitectureDashboard() {
     const interval = setInterval(runSimulationStep, simulationSpeed)
     return () => clearInterval(interval)
   }, [isSimulating, userLoad, dataComplexity, simulationSpeed])
-
-  // Function to handle simulation start/stop
-  const toggleSimulation = () => {
-    if (!isSimulating) {
-      runSimulationStep() // Run first step immediately
-    }
-    setIsSimulating(!isSimulating)
-  }
 
   // Function to handle user load change
   const handleUserLoadChange = (value: number[]) => {
@@ -482,7 +473,7 @@ export default function ArchitectureDashboard() {
               <Button 
                 className="w-full mt-2 text-xs h-8" 
                 variant={isSimulating ? "default" : "outline"}
-                onClick={toggleSimulation}
+                onClick={() => setIsSimulating(!isSimulating)}
               >
                 {isSimulating ? 'Stop Simulation' : 'Run Simulation'}
               </Button>

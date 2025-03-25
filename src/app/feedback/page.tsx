@@ -102,9 +102,8 @@ export default function FeedbackLoop() {
   const searchParams = useSearchParams()
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const [taskFilter, setTaskFilter] = useState('all')
-  const [showTestMonitor, setShowTestMonitor] = useState(false)
   
-  // Handle task data from URL
+  // Handle task data from URL or set default task
   useEffect(() => {
     const taskParam = searchParams.get('task')
     if (taskParam) {
@@ -114,8 +113,22 @@ export default function FeedbackLoop() {
       } catch (error) {
         console.error('Failed to parse task data:', error)
       }
+    } else if (testData.length > 0 && !selectedTask) {
+      // Select the first task by default if no task is provided in URL
+      const firstTest = testData[0];
+      const timestamp = new Date().toISOString(); // Fallback timestamp
+      
+      const task: Task = {
+        id: firstTest.id,
+        title: firstTest.name,
+        description: firstTest.error || 'No description available',
+        priority: firstTest.status === 'failed' ? 'high' : 'medium',
+        type: 'bug',
+        createdAt: firstTest.timestamp || timestamp
+      }
+      setSelectedTask(task)
     }
-  }, [searchParams])
+  }, [searchParams, testData])
 
   const handleAccept = () => {
     if (selectedTask) {

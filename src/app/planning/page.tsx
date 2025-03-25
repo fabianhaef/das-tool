@@ -312,20 +312,20 @@ export default function PlanningPage() {
       })
     }
 
-    // Start the movement cycle
     const startMovementCycle = () => {
-      // Move from todo to in-progress after 5 seconds
+      // Move from TODO to IN PROGRESS after 5 seconds
       todoTimeout = setTimeout(() => {
         moveFromTodoToInProgress()
         
-        // Move from in-progress to verify after another 8 seconds
-        inProgressTimeout = setTimeout(moveFromInProgressToVerify, 8000)
+        // Then move from IN PROGRESS to VERIFY after 8 more seconds
+        inProgressTimeout = setTimeout(() => {
+          moveFromInProgressToVerify()
+        }, 8000)
       }, 5000)
     }
 
     startMovementCycle()
 
-    // Cleanup function
     return () => {
       clearTimeout(todoTimeout)
       clearTimeout(inProgressTimeout)

@@ -9,6 +9,7 @@ import {
   GitPullRequest,
   History,
   Calendar,
+  FileCode,
 } from 'lucide-react'
 
 const navigation = [
@@ -17,6 +18,7 @@ const navigation = [
   { name: 'Architecture', href: '/architecture', icon: GitPullRequest },
   { name: 'Time Travel', href: '/time-travel', icon: History },
   { name: 'Feedback', href: '/feedback', icon: MessageSquare },
+  { name: 'Code Editor', href: '/code-editor', icon: FileCode },
 ]
 
 export function Sidebar() {
