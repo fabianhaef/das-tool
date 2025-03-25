@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input"
 import {
   Code,
   AlertTriangle,
-  Check,
   X,
   Play,
   Save,
@@ -100,7 +99,7 @@ helloWorld();`)
               <div className="p-3 bg-amber-950/40 border border-amber-800/50 rounded-md text-amber-200 flex items-start gap-2 mb-4">
                 <AlertTriangle className="h-5 w-5 mt-0.5 flex-shrink-0" />
                 <p className="text-sm">
-                  You are about to edit the application's source code. This requires careful attention as 
+                  You are about to edit the application&apos;s source code. This requires careful attention as 
                   incorrect changes can cause errors or unexpected behavior.
                 </p>
               </div>

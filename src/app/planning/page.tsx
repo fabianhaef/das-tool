@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd'
 import {
   Plus,
   CheckCircle2,
@@ -130,10 +130,9 @@ export default function PlanningPage() {
     priority: 'medium' as const,
     type: 'feature' as const,
   })
-  const [todoProgress, setTodoProgress] = useState(0)
 
   // Function to handle drag and drop
-  const onDragEnd = (result: any) => {
+  const onDragEnd = (result: DropResult) => {
     if (!result.destination) return
 
     const { source, destination } = result
@@ -234,156 +233,9 @@ export default function PlanningPage() {
 
   const isInProgress = (columnId: string) => columnId === 'in-progress'
 
-  // Function to move task between columns
-  const moveTask = (taskId: string, fromColumnId: string, toColumnId: string) => {
-    setColumns(prevColumns => {
-      const sourceColumn = prevColumns.find(col => col.id === fromColumnId)
-      const task = sourceColumn?.tasks.find(t => t.id === taskId)
-      
-      if (!task) return prevColumns
-
-      return prevColumns.map(col => {
-        if (col.id === fromColumnId) {
-          return {
-            ...col,
-            tasks: col.tasks.filter(t => t.id !== taskId)
-          }
-        }
-        if (col.id === toColumnId) {
-          return {
-            ...col,
-            tasks: [...col.tasks, task]
-          }
-        }
-        return col
-      })
-    })
-  }
-
-  // Effect for automatic task progression
-  useEffect(() => {
-    let todoTimeout: NodeJS.Timeout
-    let inProgressTimeout: NodeJS.Timeout
-    let todoAllTimeout: NodeJS.Timeout
-    let progressInterval: NodeJS.Timeout
-
-    // Move single task from todo to in-progress
-    const moveFromTodoToInProgress = () => {
-      setColumns(prevColumns => {
-        const todoColumn = prevColumns.find(col => col.id === 'todo')
-        if (!todoColumn?.tasks.length) return prevColumns
-        
-        const task = todoColumn.tasks[0]
-        return prevColumns.map(col => {
-          if (col.id === 'todo') {
-            return {
-              ...col,
-              tasks: col.tasks.slice(1)
-            }
-          }
-          if (col.id === 'in-progress') {
-            return {
-              ...col,
-              tasks: [...col.tasks, task]
-            }
-          }
-          return col
-        })
-      })
-    }
-
-    // Move single task from in-progress to verify
-    const moveFromInProgressToVerify = () => {
-      setColumns(prevColumns => {
-        const inProgressColumn = prevColumns.find(col => col.id === 'in-progress')
-        if (!inProgressColumn?.tasks.length) return prevColumns
-        
-        const task = inProgressColumn.tasks[0]
-        return prevColumns.map(col => {
-          if (col.id === 'in-progress') {
-            return {
-              ...col,
-              tasks: col.tasks.slice(1)
-            }
-          }
-          if (col.id === 'verify') {
-            return {
-              ...col,
-              tasks: [...col.tasks, task]
-            }
-          }
-          return col
-        })
-      })
-    }
-
-    // Move all todo tasks to in-progress
-    const moveAllTodoToInProgress = () => {
-      setColumns(prevColumns => {
-        const todoColumn = prevColumns.find(col => col.id === 'todo')
-        if (!todoColumn?.tasks.length) return prevColumns
-        
-        const tasksToMove = [...todoColumn.tasks]
-        return prevColumns.map(col => {
-          if (col.id === 'todo') {
-            return {
-              ...col,
-              tasks: []
-            }
-          }
-          if (col.id === 'in-progress') {
-            return {
-              ...col,
-              tasks: [...col.tasks, ...tasksToMove]
-            }
-          }
-          return col
-        })
-      })
-    }
-
-    const startMovementCycle = () => {
-      // Move from TODO to IN PROGRESS after 5 seconds
-      todoTimeout = setTimeout(() => {
-        moveFromTodoToInProgress()
-        
-        // Then move from IN PROGRESS to VERIFY after 8 more seconds
-        inProgressTimeout = setTimeout(() => {
-          moveFromInProgressToVerify()
-        }, 8000)
-      }, 5000)
-    }
-
-    // Start the countdown progress for todo tasks
-    const totalTime = 10000; // 10 seconds
-    const updateInterval = 100; // Update every 100ms
-    let elapsed = 0;
-
-    progressInterval = setInterval(() => {
-      elapsed += updateInterval;
-      const progress = Math.min(100, (elapsed / totalTime) * 100);
-      setTodoProgress(progress);
-      
-      if (elapsed >= totalTime) {
-        clearInterval(progressInterval);
-      }
-    }, updateInterval);
-
-    // Move all todo tasks after 10 seconds
-    todoAllTimeout = setTimeout(() => {
-      moveAllTodoToInProgress()
-    }, totalTime)
-
-    return () => {
-      clearTimeout(todoTimeout)
-      clearTimeout(inProgressTimeout)
-      clearTimeout(todoAllTimeout)
-      clearInterval(progressInterval)
-    }
-  }, []) // Empty dependency array since we want this to run once on mount
-
   // Function to manually move all todo tasks
   const handleMoveAllTodo = () => {
+    // Use the moveTask function to move all todo tasks to in-progress
     setColumns(prevColumns => {
       const todoColumn = prevColumns.find(col => col.id === 'todo')
       if (!todoColumn?.tasks.length) return prevColumns
@@ -411,28 +263,6 @@ export default function PlanningPage() {
     <div className="h-[calc(100vh-4rem)] p-4 bg-black/90 flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-bold text-primary glow-text">Project Planning</h1>
-        <div className="flex items-center gap-4">
-          <div className="flex flex-col w-48">
-            <div className="flex justify-between text-xs mb-1">
-              <span className="text-primary">Auto-move in {Math.max(0, 10 - (todoProgress / 10)).toFixed(1)}s</span>
-              <span className="text-primary">{todoProgress.toFixed(0)}%</span>
-            </div>
-            <div className="h-1 bg-primary/20 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-primary rounded-full transition-all"
-                style={{ width: `${todoProgress}%` }}
-              ></div>
-            </div>
-          </div>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="text-foreground border-primary/30 hover:text-primary"
-            onClick={handleMoveAllTodo}
-          >
-            Move All To-Do Tasks
-          </Button>
-        </div>
       </div>
 
       <div className="flex-1 overflow-hidden">

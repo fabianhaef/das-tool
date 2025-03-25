@@ -482,7 +482,7 @@ export default function TimeTravelDebugger() {
                         <>
                           <span className="text-red-400">-  return result;</span>
                           <br />
-                          <span className="text-green-400">+  // Added safety check</span>
+                          <span className="text-green-400">+  {/* Added safety check */}</span>
                           <br />
                           <span className="text-green-400">+  return result.confidence &gt; 0 ? result : fallbackResult;</span>
                           <br />
@@ -502,27 +502,16 @@ export default function TimeTravelDebugger() {
                     // System state at current point in time
                   </div>
                   
-                  <div className="font-mono text-xs p-4 overflow-auto h-full bg-blue-950/20">
-                    <pre className="text-blue-100">
-                      {`{
-  "executionState": "${selectedEvent.status}",
-  "modelState": {
-    "parameters": 125436,
-    "accuracyScore": ${selectedEvent.status === 'error' ? '0.23' : '0.87'},
-    "epoch": ${currentTimeIndex},
-    "learningRate": 0.01
-  },
-  "memory": {
-    "used": "${(128 + currentTimeIndex * 12).toFixed(1)}MB",
-    "available": "1024MB"
-  },
-  "predictions": [
-    { "class": "A", "confidence": 0.92 },
-    { "class": "B", "confidence": 0.78 },
-    { "class": "C", "confidence": 0.45 }
-  ]
+                  <div className="text-xs font-mono bg-blue-950/30 p-3 rounded overflow-auto">
+                    {`// System state at ${selectedEvent.timestamp}
+{
+  processingMode: "inference",
+  models: ["primary", "fallback"],
+  threshold: 0.82,
+  confidence: ${selectedEvent.status === 'error' ? '0.44' : '0.89'},
+  inputSize: ${editMode ? '128' : '256'}
+  /* More properties available */
 }`}
-                    </pre>
                   </div>
                 </div>
               </TabsContent>

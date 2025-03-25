@@ -107,7 +107,7 @@ export default function ArchitectureDashboard() {
 
     const interval = setInterval(runSimulationStep, simulationSpeed)
     return () => clearInterval(interval)
-  }, [isSimulating, userLoad, dataComplexity, simulationSpeed])
+  }, [isSimulating, simulationSpeed, runSimulationStep])
 
   // Function to handle user load change
   const handleUserLoadChange = (value: number[]) => {
@@ -146,6 +146,12 @@ export default function ArchitectureDashboard() {
       if (direction === 'out' && prev > 0.5) return prev - 0.25
       return prev
     })
+  }
+  
+  const onDragEnd = (result: { destination?: { index: number; droppableId: string }; source: { index: number; droppableId: string } }) => {
+    if (!result.destination) return
+
+    // ... rest of the function ...
   }
   
   return (
