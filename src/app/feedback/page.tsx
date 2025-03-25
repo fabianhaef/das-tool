@@ -128,7 +128,7 @@ export default function FeedbackLoop() {
       }
       setSelectedTask(task)
     }
-  }, [searchParams, testData, selectedTask])
+  }, [searchParams, selectedTask])
 
   const handleAccept = () => {
     if (selectedTask) {

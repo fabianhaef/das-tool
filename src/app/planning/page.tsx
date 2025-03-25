@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -263,6 +263,14 @@ export default function PlanningPage() {
     <div className="h-[calc(100vh-4rem)] p-4 bg-black/90 flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-bold text-primary glow-text">Project Planning</h1>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="text-foreground border-primary/30 hover:text-primary"
+          onClick={handleMoveAllTodo}
+        >
+          Move All To-Do Tasks
+        </Button>
       </div>
 
       <div className="flex-1 overflow-hidden">

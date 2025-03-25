@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
@@ -35,7 +35,8 @@ export default function ArchitectureDashboard() {
   }>>({})
   const [simulationSpeed, setSimulationSpeed] = useState(1000) // ms between updates
   
-  const modules = [
+  // Define modules with useMemo to prevent recreation on every render
+  const modules = useMemo(() => [
     { id: 'dataIngestion', name: 'Data Ingestion', inputs: ['API', 'Database'], outputs: ['Parser'] },
     { id: 'parser', name: 'Parser', inputs: ['Data Ingestion'], outputs: ['Analyzer', 'Storage'] },
     { id: 'analyzer', name: 'Analyzer', inputs: ['Parser'], outputs: ['Decision Engine', 'Reporting'] },
@@ -44,7 +45,7 @@ export default function ArchitectureDashboard() {
     { id: 'reporting', name: 'Reporting', inputs: ['Analyzer', 'Storage'], outputs: ['UI'] },
     { id: 'ui', name: 'UI', inputs: ['Decision Engine', 'Reporting'], outputs: ['User'] },
     { id: 'logger', name: 'Logger', inputs: ['Decision Engine'], outputs: [] },
-  ]
+  ], []);
   
   const performanceMetrics = {
     responseTime: 320, // ms
@@ -53,8 +54,8 @@ export default function ArchitectureDashboard() {
     explainabilityScore: 86, // %
   }
   
-  // Function to calculate module metrics based on simulation parameters
-  const calculateModuleMetrics = (moduleId: string, userLoad: number, dataComplexity: number) => {
+  // Wrap calculateModuleMetrics in useCallback
+  const calculateModuleMetrics = useCallback((moduleId: string, userLoad: number, dataComplexity: number) => {
     const baseLatency = 40 // base latency in ms
     const baseErrorRate = 0.02 // base error rate percentage
     const baseThroughput = 150 // base requests per second
@@ -88,26 +89,32 @@ export default function ArchitectureDashboard() {
     }
 
     return { latency, errorRate, throughput, reliability, status }
-  }
-
-  // Function to run simulation step
-  const runSimulationStep = () => {
-    const newMetrics: Record<string, any> = {}
-    
-    modules.forEach(module => {
-      newMetrics[module.id] = calculateModuleMetrics(module.id, userLoad, dataComplexity)
-    })
-
-    setModuleMetrics(newMetrics)
-  }
+  }, []);
 
   // Effect to handle simulation
   useEffect(() => {
     if (!isSimulating) return
 
+    // Function to run simulation step moved inside useEffect
+    const runSimulationStep = () => {
+      const newMetrics: Record<string, {
+        latency: number;
+        errorRate: number;
+        throughput: number;
+        reliability: number;
+        status: 'normal' | 'warning' | 'error';
+      }> = {}
+      
+      modules.forEach(module => {
+        newMetrics[module.id] = calculateModuleMetrics(module.id, userLoad, dataComplexity)
+      })
+
+      setModuleMetrics(newMetrics)
+    }
+
     const interval = setInterval(runSimulationStep, simulationSpeed)
     return () => clearInterval(interval)
-  }, [isSimulating, simulationSpeed, runSimulationStep])
+  }, [isSimulating, simulationSpeed, modules, userLoad, dataComplexity, calculateModuleMetrics])
 
   // Function to handle user load change
   const handleUserLoadChange = (value: number[]) => {
@@ -146,12 +153,6 @@ export default function ArchitectureDashboard() {
       if (direction === 'out' && prev > 0.5) return prev - 0.25
       return prev
     })
-  }
-  
-  const onDragEnd = (result: { destination?: { index: number; droppableId: string }; source: { index: number; droppableId: string } }) => {
-    if (!result.destination) return
-
-    // ... rest of the function ...
   }
   
   return (

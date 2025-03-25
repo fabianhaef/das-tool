@@ -474,7 +474,7 @@ export default function TimeTravelDebugger() {
                       ) : (
                         <span className="text-blue-300">  if (result.confidence &lt; 0.6) {'{'}</span>
                       )}
-                      <span className="text-blue-300">    console.warn("Low confidence prediction");</span>
+                      <span className="text-blue-300">    console.warn(&quot;Low confidence prediction&quot;);</span>
                       <br />
                       <span className="text-blue-300">  {'}'}</span>
                       <br />
@@ -499,7 +499,7 @@ export default function TimeTravelDebugger() {
               <TabsContent value="state" className="flex-1 p-0 m-0 overflow-hidden">
                 <div className="flex flex-col h-full">
                   <div className="bg-blue-950/50 text-xs p-1.5 text-blue-300 font-mono">
-                    // System state at current point in time
+                    {/* System state at current point in time */}
                   </div>
                   
                   <div className="text-xs font-mono bg-blue-950/30 p-3 rounded overflow-auto">
